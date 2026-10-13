@@ -1,0 +1,133 @@
+# Alerting rules - visible at http://localhost:9090/alerts
+groups:
+  - name: resourcehub-availability
+    rules:
+      - alert: ResourceHubApiDown
+        expr: up{job="resourcehub-api"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: ResourceHub API is down
+          description: Prometheus cannot scrape backend:5000/api/metrics for more than 30 seconds.
+
+      - alert: DatabaseDisconnected
+        expr: rh_db_up == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: API lost its MongoDB connection
+          description: rh_db_up has been 0 for 30 seconds - every write will fail.
+
+      - alert: ExporterDown
+        expr: up{job=~"node-exporter|cadvisor|mongodb"} == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Exporter {{ $labels.job }} is down"
+          description: "{{ $labels.instance }} has not been scraped for 1 minute."
+
+  - name: resourcehub-performance
+    rules:
+      - record: job:rh_http_requests:rate1m
+        expr: sum(rate(rh_http_requests_total[1m]))
+
+      - record: job:rh_http_errors_5xx:ratio1m
+        expr: sum(rate(rh_http_requests_total{status_code=~"5.."}[1m])) / clamp_min(sum(rate(rh_http_requests_total[1m])), 0.001)
+
+      - record: job:rh_http_latency_seconds:p95_5m
+        expr: histogram_quantile(0.95, sum by (le) (rate(rh_http_request_duration_seconds_bucket[5m])))
+
+      - alert: HighServerErrorRate
+        expr: job:rh_http_errors_5xx:ratio1m > 0.05
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: More than 5% of API requests are failing with 5xx
+          description: "Current 5xx ratio is {{ $value | humanizePercentage }}."
+
+      - alert: SlowApiResponses
+        expr: job:rh_http_latency_seconds:p95_5m > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: API p95 latency above 500 ms
+          description: "p95 latency is {{ $value | humanizeDuration }}."
+
+      - alert: HighHeapUsage
+        expr: rh_nodejs_heap_size_used_bytes / rh_nodejs_heap_size_total_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Node.js heap is more than 90% used
+          description: Possible memory leak in the API process.
+
+      - alert: EventLoopLag
+        expr: rh_nodejs_eventloop_lag_p99_seconds > 0.2
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Node.js event loop is lagging
+          description: "p99 event-loop lag is {{ $value | humanizeDuration }}."
+
+  - name: resourcehub-business
+    rules:
+      - alert: CriticalMaintenanceTicketOpen
+        expr: sum(rh_maintenance_tickets{priority="CRITICAL", status!="RESOLVED"}) > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: A CRITICAL maintenance ticket is open
+          description: "{{ $value }} critical ticket(s) need attention in ResourceHub."
+
+      - alert: PendingRequestsBacklog
+        expr: rh_resource_requests{status="PENDING"} > 10
+        for: 10m
+        labels:
+          severity: info
+        annotations:
+          summary: Resource request backlog is growing
+          description: "{{ $value }} requests are waiting for admin approval."
+
+      - alert: BookingConflictSpike
+        expr: sum(increase(rh_bookings_total{outcome="conflict"}[10m])) > 20
+        labels:
+          severity: info
+        annotations:
+          summary: Many booking conflicts - rooms may be over-subscribed
+          description: "{{ $value }} conflicting booking attempts in the last 10 minutes."
+
+      - alert: BruteForceLoginSuspected
+        expr: sum(rate(rh_logins_total{result="failure"}[5m])) * 300 > 30
+        labels:
+          severity: warning
+        annotations:
+          summary: Unusual number of failed logins
+          description: "{{ $value }} failed logins in 5 minutes."
+
+  - name: host
+    rules:
+      - alert: HostHighCpu
+        expr: 100 * (1 - avg(rate(node_cpu_seconds_total{mode="idle"}[2m]))) > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Host CPU above 90%
+          description: "CPU usage is {{ $value | printf \"%.0f\" }}%."
+
+      - alert: HostLowMemory
+        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes < 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Host memory below 10% free
+          description: Containers may be OOM-killed.

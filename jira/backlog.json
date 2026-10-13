@@ -1,0 +1,123 @@
+{
+  "project": "ResourceHub - Office Resource Management System",
+  "sprintLengthDays": 14,
+  "team": [
+    { "id": "M1", "role": "Scrum Master / DevOps & Backend Lead" },
+    { "id": "M2", "role": "Frontend & UI/UX Lead" },
+    { "id": "M3", "role": "Business Logic, Testing & QA Lead" }
+  ],
+  "sprints": [
+    { "name": "Sprint 1 - Foundation", "goal": "Repo, auth, RBAC, resource CRUD and containerised dev environment" },
+    { "name": "Sprint 2 - Core workflows", "goal": "Requests, approvals, atomic allocation, conflict-free booking and CI pipeline" },
+    { "name": "Sprint 3 - Booking UX, maintenance & dashboards", "goal": "Calendar view, returns, maintenance tickets, notifications, audit log, dashboards" },
+    { "name": "Sprint 4 - DevOps & observability", "goal": "CD to GHCR, Prometheus metrics, Grafana dashboards, alerts and Jira automation" }
+  ],
+  "epics": [
+    {
+      "summary": "Project setup & authentication",
+      "description": "Repository, branching strategy, sign-up/login with JWT and role-based access control.",
+      "stories": [
+        { "summary": "Set up Git repository, branching strategy and project scaffolding", "points": 3, "sprint": 1, "owner": "M1", "labels": ["setup"],
+          "acceptance": ["main and develop branches protected", "feature/<KEY>-short-name branch convention documented", "backend and frontend skeletons run locally"] },
+        { "summary": "As an employee I can sign up for an account", "points": 3, "sprint": 1, "owner": "M3", "labels": ["auth"],
+          "acceptance": ["Public sign-up always creates EMPLOYEE role even if ADMIN is sent", "Duplicate e-mail returns 409", "Password is stored as bcrypt hash"] },
+        { "summary": "As a user I can log in and stay logged in (JWT)", "points": 5, "sprint": 1, "owner": "M1", "labels": ["auth"],
+          "acceptance": ["Valid credentials return a signed JWT", "Wrong password returns 401", "Deactivated users cannot log in"] },
+        { "summary": "Role-based access control for ADMIN and EMPLOYEE", "points": 5, "sprint": 1, "owner": "M1", "labels": ["auth", "security"],
+          "acceptance": ["Admin-only endpoints return 403 for employees", "Frontend hides admin menus for employees", "Missing token returns 401"] },
+        { "summary": "As a user I can update my profile and change my password", "points": 2, "sprint": 3, "owner": "M2", "labels": ["auth"],
+          "acceptance": ["Name, department and phone are editable", "Password change requires the current password"] }
+      ]
+    },
+    {
+      "summary": "Resource catalogue",
+      "description": "Admins maintain the inventory of laptops, monitors, printers, rooms and projectors.",
+      "stories": [
+        { "summary": "As an admin I can add, edit and delete resources", "points": 5, "sprint": 1, "owner": "M2", "labels": ["resources"],
+          "acceptance": ["Asset tag is unique", "Cannot delete an allocated resource or one with upcoming bookings", "Every change is written to the audit log"] },
+        { "summary": "As a user I can search and filter the resource catalogue", "points": 3, "sprint": 2, "owner": "M2", "labels": ["resources"],
+          "acceptance": ["Search by name, tag or location", "Filter by category and status"] },
+        { "summary": "As an admin I can change a resource status (retire, maintenance)", "points": 2, "sprint": 2, "owner": "M3", "labels": ["resources"],
+          "acceptance": ["ALLOCATED can only be set by the allocation workflow", "Allocated resources cannot be retired"] }
+      ]
+    },
+    {
+      "summary": "Requests & allocation",
+      "description": "Employees request assets, admins approve them and assets are allocated and returned.",
+      "stories": [
+        { "summary": "As an employee I can request an available asset", "points": 3, "sprint": 2, "owner": "M3", "labels": ["requests"],
+          "acceptance": ["Only AVAILABLE, non-shared assets can be requested", "Duplicate pending request returns 409", "Admins are notified"] },
+        { "summary": "As an admin I can approve or reject requests", "points": 5, "sprint": 2, "owner": "M3", "labels": ["requests"],
+          "acceptance": ["Approval allocates the asset", "Rejection requires a reason", "Competing pending requests are auto-closed"] },
+        { "summary": "Prevent the same asset being allocated twice (atomic allocation)", "points": 5, "sprint": 2, "owner": "M1", "labels": ["allocation", "concurrency"],
+          "acceptance": ["AVAILABLE -> ALLOCATED is a single conditional update", "Second allocation attempt returns 409"] },
+        { "summary": "Return workflow with condition inspection", "points": 5, "sprint": 3, "owner": "M3", "labels": ["allocation"],
+          "acceptance": ["Employee requests return", "Admin checks the asset in as GOOD or DAMAGED", "DAMAGED opens a HIGH priority maintenance ticket"] },
+        { "summary": "As an admin I can allocate an asset directly to an employee", "points": 2, "sprint": 3, "owner": "M2", "labels": ["allocation"],
+          "acceptance": ["Optional due date", "Overdue allocations are highlighted"] }
+      ]
+    },
+    {
+      "summary": "Shared resource booking",
+      "description": "Conference rooms and projectors are booked by time slot without overlaps.",
+      "stories": [
+        { "summary": "As a user I can book a room or projector for a time slot", "points": 5, "sprint": 2, "owner": "M2", "labels": ["booking"],
+          "acceptance": ["End must be after start", "No bookings in the past", "Attendees cannot exceed room capacity"] },
+        { "summary": "Reject overlapping bookings with 409 Conflict", "points": 5, "sprint": 2, "owner": "M1", "labels": ["booking", "algorithm"],
+          "acceptance": ["Overlap rule: newStart < existingEnd AND newEnd > existingStart", "Back-to-back slots are allowed", "Conflict metric is exported to Prometheus"] },
+        { "summary": "Day-view booking calendar", "points": 5, "sprint": 3, "owner": "M2", "labels": ["booking", "ui"],
+          "acceptance": ["Rooms x hours grid", "Click an empty slot to book", "Own bookings are highlighted"] },
+        { "summary": "Cancel a booking (owner or admin)", "points": 2, "sprint": 3, "owner": "M3", "labels": ["booking"],
+          "acceptance": ["Other employees get 403", "Cancelled slot becomes bookable again"] }
+      ]
+    },
+    {
+      "summary": "Maintenance, notifications & audit",
+      "description": "Fault reporting, repair tracking, in-app notifications and a full audit trail.",
+      "stories": [
+        { "summary": "As a user I can report a faulty resource", "points": 3, "sprint": 3, "owner": "M3", "labels": ["maintenance"],
+          "acceptance": ["Resource becomes UNDER_MAINTENANCE", "Only one open ticket per resource", "Employees can only report shared resources or their own assets"] },
+        { "summary": "As an admin I can progress and resolve maintenance tickets", "points": 3, "sprint": 3, "owner": "M3", "labels": ["maintenance"],
+          "acceptance": ["OPEN -> IN_PROGRESS -> RESOLVED", "Resolving restores the resource status", "Reporter is notified"] },
+        { "summary": "Audit log of every state-changing action", "points": 3, "sprint": 3, "owner": "M1", "labels": ["audit"],
+          "acceptance": ["Who, what, when for every action", "Admin-only, paginated, filterable by entity"] },
+        { "summary": "In-app notifications", "points": 3, "sprint": 3, "owner": "M2", "labels": ["notifications"],
+          "acceptance": ["Bell with unread badge", "Mark all as read"] }
+      ]
+    },
+    {
+      "summary": "Dashboards",
+      "description": "Role-specific dashboards with live statistics and charts.",
+      "stories": [
+        { "summary": "Admin dashboard with KPIs and charts", "points": 5, "sprint": 3, "owner": "M2", "labels": ["dashboard"],
+          "acceptance": ["Resources by status and category", "Bookings per day", "Open tickets and recent activity"] },
+        { "summary": "Employee dashboard", "points": 3, "sprint": 3, "owner": "M2", "labels": ["dashboard"],
+          "acceptance": ["My assets, requests, bookings and open issues"] }
+      ]
+    },
+    {
+      "summary": "DevOps: containers, CI/CD & monitoring",
+      "description": "Docker, Docker Compose, GitHub Actions, Prometheus, Grafana and Jira automation (no Kubernetes).",
+      "stories": [
+        { "summary": "Dockerize backend and frontend with multi-stage builds", "points": 3, "sprint": 1, "owner": "M1", "labels": ["docker"],
+          "acceptance": ["Backend runs as non-root with HEALTHCHECK", "Frontend served by nginx which proxies /api"] },
+        { "summary": "Docker Compose stack for the whole system", "points": 3, "sprint": 1, "owner": "M1", "labels": ["docker"],
+          "acceptance": ["One command starts MongoDB, API, frontend, Prometheus, Grafana and exporters", "Services wait for healthy dependencies"] },
+        { "summary": "GitHub Actions CI pipeline", "points": 5, "sprint": 2, "owner": "M1", "labels": ["ci"],
+          "acceptance": ["Backend tests against an ephemeral MongoDB", "Frontend build", "Docker images build", "Runs on every push and PR"] },
+        { "summary": "Full-stack smoke test in CI with docker compose", "points": 3, "sprint": 4, "owner": "M3", "labels": ["ci", "testing"],
+          "acceptance": ["Stack boots in CI", "Prometheus target is UP", "Grafana dashboards are provisioned"] },
+        { "summary": "CD: publish versioned images to GitHub Container Registry", "points": 3, "sprint": 4, "owner": "M1", "labels": ["cd"],
+          "acceptance": ["main -> latest", "v* tags -> semver tags and GitHub Release"] },
+        { "summary": "Instrument the API with Prometheus metrics", "points": 5, "sprint": 4, "owner": "M1", "labels": ["monitoring"],
+          "acceptance": ["Golden-signal HTTP metrics", "Business counters and gauges", "Bounded label cardinality"] },
+        { "summary": "Provision Grafana dashboards as code", "points": 5, "sprint": 4, "owner": "M2", "labels": ["monitoring"],
+          "acceptance": ["Datasource and dashboards auto-provisioned", "Application and infrastructure dashboards"] },
+        { "summary": "Prometheus alert rules", "points": 3, "sprint": 4, "owner": "M3", "labels": ["monitoring"],
+          "acceptance": ["API down, DB down, 5xx rate, p95 latency, critical tickets"] },
+        { "summary": "Jira <-> GitHub integration", "points": 3, "sprint": 4, "owner": "M1", "labels": ["jira", "ci"],
+          "acceptance": ["Commits and PRs referencing an issue key comment on it", "Merged PR moves the issue to Done", "CI failure on main raises a Bug"] }
+      ]
+    }
+  ]
+}

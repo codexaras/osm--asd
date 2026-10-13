@@ -1,0 +1,88 @@
+# =====================================================================
+#  Jira integration
+#  - Finds Jira keys (e.g. ORMS-12) in branch names, commit messages and PR titles
+#  - Comments on the Jira issue with a link to the commit / PR
+#  - PR opened      -> issue moves to "In Review" (falls back to "In Progress")
+#  - PR merged      -> issue moves to "Done"
+#  - CI fails on main -> a Jira Bug is created automatically
+#
+#  Required repository secrets (Settings -> Secrets and variables -> Actions):
+#    JIRA_BASE_URL     e.g. https://your-team.atlassian.net
+#    JIRA_USER_EMAIL   the Atlassian account e-mail
+#    JIRA_API_TOKEN    https://id.atlassian.com/manage-profile/security/api-tokens
+#  Optional repository variable:
+#    JIRA_PROJECT_KEY  e.g. ORMS (needed for auto-created bugs)
+#  If the secrets are missing the jobs log a notice and succeed (no red builds).
+# =====================================================================
+name: Jira
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    types: [opened, reopened, ready_for_review, closed]
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+env:
+  JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+  JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+  JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+  JIRA_PROJECT_KEY: ${{ vars.JIRA_PROJECT_KEY }}
+
+jobs:
+  commits:
+    name: Link commits to Jira
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Comment on referenced issues
+        # Untrusted values are passed through env vars, never interpolated into the script (prevents injection)
+        env:
+          COMMITS_JSON: ${{ toJson(github.event.commits) }}
+          BRANCH: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+          SERVER: ${{ github.server_url }}
+        run: python3 scripts/jira/jira_sync.py commits --repo "$REPO" --branch "$BRANCH" --server "$SERVER"
+
+  pull-request:
+    name: Sync PR status to Jira
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Transition referenced issues
+        env:
+          PR_ACTION: ${{ github.event.action }}
+          PR_MERGED: ${{ github.event.pull_request.merged }}
+          PR_BASE: ${{ github.event.pull_request.base.ref }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          python3 scripts/jira/jira_sync.py pr --action "$PR_ACTION" --merged "$PR_MERGED" --base "$PR_BASE" \
+            --title "$PR_TITLE" --branch "$PR_BRANCH" --url "$PR_URL" --number "$PR_NUMBER"
+
+  ci-result:
+    name: Report CI result / raise bug
+    if: github.event_name == 'workflow_run'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Comment CI result, create Bug on main failures
+        env:
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          RUN_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          RUN_TITLE: ${{ github.event.workflow_run.display_title }}
+          RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+        run: |
+          python3 scripts/jira/jira_sync.py ci --conclusion "$CONCLUSION" --branch "$RUN_BRANCH" \
+            --title "$RUN_TITLE" --sha "$RUN_SHA" --url "$RUN_URL"

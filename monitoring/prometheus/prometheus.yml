@@ -1,0 +1,46 @@
+# Prometheus configuration for ResourceHub (Docker Compose, no Kubernetes).
+# Targets are resolved through Docker's embedded DNS using the compose service names.
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    project: resourcehub
+    environment: docker-compose
+
+rule_files:
+  - /etc/prometheus/alert.rules.yml
+
+scrape_configs:
+  # The ResourceHub API (prom-client) - scraped every 5s for a lively dashboard
+  - job_name: resourcehub-api
+    scrape_interval: 5s
+    metrics_path: /api/metrics
+    static_configs:
+      - targets: ["backend:5000"]
+        labels:
+          service: backend
+
+  # Host metrics (CPU, memory, disk, network)
+  - job_name: node-exporter
+    static_configs:
+      - targets: ["node-exporter:9100"]
+
+  # Per-container CPU / memory / network
+  - job_name: cadvisor
+    scrape_interval: 10s
+    static_configs:
+      - targets: ["cadvisor:8080"]
+
+  # MongoDB server metrics
+  - job_name: mongodb
+    static_configs:
+      - targets: ["mongodb-exporter:9216"]
+
+  # Monitoring the monitoring stack
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: grafana
+    static_configs:
+      - targets: ["grafana:3000"]

@@ -1,0 +1,205 @@
+# =====================================================================
+#  ResourceHub - full stack with Docker Compose (no Kubernetes)
+#
+#    docker compose up -d --build                 # app + monitoring
+#    docker compose --profile demo up -d          # + synthetic traffic for live dashboards
+#
+#  App ............ http://localhost:8080
+#  API ............ http://localhost:5000/api/health
+#  Prometheus ..... http://localhost:9090
+#  Grafana ........ http://localhost:3000   (admin / admin)
+# =====================================================================
+name: resourcehub
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  # ------------------------------------------------------------------ data
+  mongo:
+    image: mongo:7.0
+    container_name: rh-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks: [backend-net]
+    logging: *default-logging
+
+  # ------------------------------------------------------------------ application
+  backend:
+    build:
+      context: ./backend
+    image: ${REGISTRY:-ghcr.io/your-org}/resourcehub-backend:${TAG:-latest}
+    container_name: rh-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 5000
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/resourcehub}
+      JWT_SECRET: ${JWT_SECRET:-change_me_to_a_long_random_string}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      SEED_ON_START: ${SEED_ON_START:-true}
+      CLIENT_URL: http://localhost:${FRONTEND_PORT:-8080}
+    ports:
+      - "${BACKEND_PORT:-5000}:5000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:5000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks: [backend-net, frontend-net, monitoring-net]
+    logging: *default-logging
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api
+    image: ${REGISTRY:-ghcr.io/your-org}/resourcehub-frontend:${TAG:-latest}
+    container_name: rh-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks: [frontend-net]
+    logging: *default-logging
+
+  # ------------------------------------------------------------------ monitoring
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: rh-prometheus
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --web.enable-lifecycle        # allows: curl -X POST localhost:9090/-/reload
+    volumes:
+      - ./monitoring/prometheus:/etc/prometheus:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    depends_on:
+      - backend
+    networks: [monitoring-net]
+    logging: *default-logging
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: rh-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      # Read-only anonymous access + iframe embedding so the app's Monitoring page can show the dashboard
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /etc/grafana/dashboards/resourcehub-overview.json
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/etc/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    depends_on:
+      - prometheus
+    networks: [monitoring-net]
+    logging: *default-logging
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: rh-node-exporter
+    restart: unless-stopped
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --path.rootfs=/rootfs
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks: [monitoring-net]
+    logging: *default-logging
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: rh-cadvisor
+    restart: unless-stopped
+    privileged: true
+    command:
+      - --docker_only=true
+      - --housekeeping_interval=10s
+      - --store_container_labels=false
+      - --whitelisted_container_labels=com.docker.compose.service
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - /dev/kmsg
+    networks: [monitoring-net]
+    logging: *default-logging
+
+  mongodb-exporter:
+    image: percona/mongodb_exporter:0.40.0
+    container_name: rh-mongodb-exporter
+    restart: unless-stopped
+    command:
+      - --mongodb.uri=mongodb://mongo:27017
+      - --collect-all
+      - --discovering-mode
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks: [backend-net, monitoring-net]
+    logging: *default-logging
+
+  # ------------------------------------------------------------------ demo traffic (optional)
+  traffic:
+    image: node:22-alpine
+    container_name: rh-traffic
+    profiles: ["demo"]
+    restart: unless-stopped
+    environment:
+      API_URL: http://backend:5000/api
+      RPS: ${TRAFFIC_RPS:-4}
+    volumes:
+      - ./scripts/traffic-generator.js:/app/traffic-generator.js:ro
+    command: ["node", "/app/traffic-generator.js"]
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks: [backend-net]
+    logging: *default-logging
+
+networks:
+  frontend-net:
+  backend-net:
+  monitoring-net:
+
+volumes:
+  mongo-data:
+  prometheus-data:
+  grafana-data:

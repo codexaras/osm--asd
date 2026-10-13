@@ -1,0 +1,12 @@
+# Loads every JSON file in /etc/grafana/dashboards into the "ResourceHub" folder.
+apiVersion: 1
+providers:
+  - name: resourcehub
+    folder: ResourceHub
+    type: file
+    disableDeletion: true
+    allowUiUpdates: true
+    updateIntervalSeconds: 30
+    options:
+      path: /etc/grafana/dashboards
+      foldersFromFilesStructure: false
