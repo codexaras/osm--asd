@@ -18,7 +18,7 @@ E1-S4,Story,Role-based access control for ADMIN and EMPLOYEE,"Acceptance criteri
 - Missing token returns 401",E1,5,Sprint 1 - Foundation,auth security
 E1-S5,Story,As a user I can update my profile and change my password,"Acceptance criteria:
 - Name, department and phone are editable
-- Password change requires the current password",E1,2,"Sprint 3 - Booking UX, maintenance & dashboards",auth
+- Password change requires the current password",E1,2,Sprint 3 - UX & Maintenance,auth
 E2,Epic,Resource catalogue,"Admins maintain the inventory of laptops, monitors, printers, rooms and projectors.",,,,epic
 E2-S1,Story,"As an admin I can add, edit and delete resources","Acceptance criteria:
 - Asset tag is unique
@@ -45,10 +45,10 @@ E3-S3,Story,Prevent the same asset being allocated twice (atomic allocation),"Ac
 E3-S4,Story,Return workflow with condition inspection,"Acceptance criteria:
 - Employee requests return
 - Admin checks the asset in as GOOD or DAMAGED
-- DAMAGED opens a HIGH priority maintenance ticket",E3,5,"Sprint 3 - Booking UX, maintenance & dashboards",allocation
+- DAMAGED opens a HIGH priority maintenance ticket",E3,5,Sprint 3 - UX & Maintenance,allocation
 E3-S5,Story,As an admin I can allocate an asset directly to an employee,"Acceptance criteria:
 - Optional due date
-- Overdue allocations are highlighted",E3,2,"Sprint 3 - Booking UX, maintenance & dashboards",allocation
+- Overdue allocations are highlighted",E3,2,Sprint 3 - UX & Maintenance,allocation
 E4,Epic,Shared resource booking,Conference rooms and projectors are booked by time slot without overlaps.,,,,epic
 E4-S1,Story,As a user I can book a room or projector for a time slot,"Acceptance criteria:
 - End must be after start
@@ -61,32 +61,32 @@ E4-S2,Story,Reject overlapping bookings with 409 Conflict,"Acceptance criteria:
 E4-S3,Story,Day-view booking calendar,"Acceptance criteria:
 - Rooms x hours grid
 - Click an empty slot to book
-- Own bookings are highlighted",E4,5,"Sprint 3 - Booking UX, maintenance & dashboards",booking ui
+- Own bookings are highlighted",E4,5,Sprint 3 - UX & Maintenance,booking ui
 E4-S4,Story,Cancel a booking (owner or admin),"Acceptance criteria:
 - Other employees get 403
-- Cancelled slot becomes bookable again",E4,2,"Sprint 3 - Booking UX, maintenance & dashboards",booking
+- Cancelled slot becomes bookable again",E4,2,Sprint 3 - UX & Maintenance,booking
 E5,Epic,"Maintenance, notifications & audit","Fault reporting, repair tracking, in-app notifications and a full audit trail.",,,,epic
 E5-S1,Story,As a user I can report a faulty resource,"Acceptance criteria:
 - Resource becomes UNDER_MAINTENANCE
 - Only one open ticket per resource
-- Employees can only report shared resources or their own assets",E5,3,"Sprint 3 - Booking UX, maintenance & dashboards",maintenance
+- Employees can only report shared resources or their own assets",E5,3,Sprint 3 - UX & Maintenance,maintenance
 E5-S2,Story,As an admin I can progress and resolve maintenance tickets,"Acceptance criteria:
 - OPEN -> IN_PROGRESS -> RESOLVED
 - Resolving restores the resource status
-- Reporter is notified",E5,3,"Sprint 3 - Booking UX, maintenance & dashboards",maintenance
+- Reporter is notified",E5,3,Sprint 3 - UX & Maintenance,maintenance
 E5-S3,Story,Audit log of every state-changing action,"Acceptance criteria:
 - Who, what, when for every action
-- Admin-only, paginated, filterable by entity",E5,3,"Sprint 3 - Booking UX, maintenance & dashboards",audit
+- Admin-only, paginated, filterable by entity",E5,3,Sprint 3 - UX & Maintenance,audit
 E5-S4,Story,In-app notifications,"Acceptance criteria:
 - Bell with unread badge
-- Mark all as read",E5,3,"Sprint 3 - Booking UX, maintenance & dashboards",notifications
+- Mark all as read",E5,3,Sprint 3 - UX & Maintenance,notifications
 E6,Epic,Dashboards,Role-specific dashboards with live statistics and charts.,,,,epic
 E6-S1,Story,Admin dashboard with KPIs and charts,"Acceptance criteria:
 - Resources by status and category
 - Bookings per day
-- Open tickets and recent activity",E6,5,"Sprint 3 - Booking UX, maintenance & dashboards",dashboard
+- Open tickets and recent activity",E6,5,Sprint 3 - UX & Maintenance,dashboard
 E6-S2,Story,Employee dashboard,"Acceptance criteria:
-- My assets, requests, bookings and open issues",E6,3,"Sprint 3 - Booking UX, maintenance & dashboards",dashboard
+- My assets, requests, bookings and open issues",E6,3,Sprint 3 - UX & Maintenance,dashboard
 E7,Epic,"DevOps: containers, CI/CD & monitoring","Docker, Docker Compose, GitHub Actions, Prometheus, Grafana and Jira automation (no Kubernetes).",,,,epic
 E7-S1,Story,Dockerize backend and frontend with multi-stage builds,"Acceptance criteria:
 - Backend runs as non-root with HEALTHCHECK
@@ -102,20 +102,20 @@ E7-S3,Story,GitHub Actions CI pipeline,"Acceptance criteria:
 E7-S4,Story,Full-stack smoke test in CI with docker compose,"Acceptance criteria:
 - Stack boots in CI
 - Prometheus target is UP
-- Grafana dashboards are provisioned",E7,3,Sprint 4 - DevOps & observability,ci testing
+- Grafana dashboards are provisioned",E7,3,Sprint 4 - DevOps & Monitoring,ci testing
 E7-S5,Story,CD: publish versioned images to GitHub Container Registry,"Acceptance criteria:
 - main -> latest
-- v* tags -> semver tags and GitHub Release",E7,3,Sprint 4 - DevOps & observability,cd
+- v* tags -> semver tags and GitHub Release",E7,3,Sprint 4 - DevOps & Monitoring,cd
 E7-S6,Story,Instrument the API with Prometheus metrics,"Acceptance criteria:
 - Golden-signal HTTP metrics
 - Business counters and gauges
-- Bounded label cardinality",E7,5,Sprint 4 - DevOps & observability,monitoring
+- Bounded label cardinality",E7,5,Sprint 4 - DevOps & Monitoring,monitoring
 E7-S7,Story,Provision Grafana dashboards as code,"Acceptance criteria:
 - Datasource and dashboards auto-provisioned
-- Application and infrastructure dashboards",E7,5,Sprint 4 - DevOps & observability,monitoring
+- Application and infrastructure dashboards",E7,5,Sprint 4 - DevOps & Monitoring,monitoring
 E7-S8,Story,Prometheus alert rules,"Acceptance criteria:
-- API down, DB down, 5xx rate, p95 latency, critical tickets",E7,3,Sprint 4 - DevOps & observability,monitoring
+- API down, DB down, 5xx rate, p95 latency, critical tickets",E7,3,Sprint 4 - DevOps & Monitoring,monitoring
 E7-S9,Story,Jira <-> GitHub integration,"Acceptance criteria:
 - Commits and PRs referencing an issue key comment on it
 - Merged PR moves the issue to Done
-- CI failure on main raises a Bug",E7,3,Sprint 4 - DevOps & observability,jira ci
+- CI failure on main raises a Bug",E7,3,Sprint 4 - DevOps & Monitoring,jira ci

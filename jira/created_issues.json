@@ -1,0 +1,326 @@
+{
+  "site": "https://aravpalod2.atlassian.net",
+  "project": "ORMS",
+  "board": "https://aravpalod2.atlassian.net/jira/software/projects/ORMS/boards/3",
+  "sprints": [
+    {
+      "id": 1,
+      "name": "Sprint 1 - Foundation",
+      "state": "closed",
+      "points": 27
+    },
+    {
+      "id": 2,
+      "name": "Sprint 2 - Core workflows",
+      "state": "closed",
+      "points": 33
+    },
+    {
+      "id": 3,
+      "name": "Sprint 3 - UX & Maintenance",
+      "state": "closed",
+      "points": 36
+    },
+    {
+      "id": 4,
+      "name": "Sprint 4 - DevOps & Monitoring",
+      "state": "active",
+      "points": 22
+    }
+  ],
+  "epics": [
+    {
+      "key": "ORMS-1",
+      "summary": "Project setup & authentication",
+      "status": "Done"
+    },
+    {
+      "key": "ORMS-2",
+      "summary": "Resource catalogue",
+      "status": "Done"
+    },
+    {
+      "key": "ORMS-3",
+      "summary": "Requests & allocation",
+      "status": "Done"
+    },
+    {
+      "key": "ORMS-4",
+      "summary": "Shared resource booking",
+      "status": "Done"
+    },
+    {
+      "key": "ORMS-5",
+      "summary": "Maintenance, notifications & audit",
+      "status": "Done"
+    },
+    {
+      "key": "ORMS-6",
+      "summary": "Dashboards",
+      "status": "Done"
+    },
+    {
+      "key": "ORMS-7",
+      "summary": "DevOps: containers, CI/CD & monitoring",
+      "status": "In Progress"
+    }
+  ],
+  "stories": [
+    {
+      "key": "ORMS-8",
+      "epic": "ORMS-1",
+      "sprint": "Sprint 1 - Foundation",
+      "points": 3,
+      "status": "Done",
+      "summary": "Set up Git repository, branching strategy and project scaffolding"
+    },
+    {
+      "key": "ORMS-9",
+      "epic": "ORMS-1",
+      "sprint": "Sprint 1 - Foundation",
+      "points": 3,
+      "status": "Done",
+      "summary": "As an employee I can sign up for an account"
+    },
+    {
+      "key": "ORMS-10",
+      "epic": "ORMS-1",
+      "sprint": "Sprint 1 - Foundation",
+      "points": 5,
+      "status": "Done",
+      "summary": "As a user I can log in and stay logged in (JWT)"
+    },
+    {
+      "key": "ORMS-11",
+      "epic": "ORMS-1",
+      "sprint": "Sprint 1 - Foundation",
+      "points": 5,
+      "status": "Done",
+      "summary": "Role-based access control for ADMIN and EMPLOYEE"
+    },
+    {
+      "key": "ORMS-12",
+      "epic": "ORMS-1",
+      "sprint": "Sprint 3 - UX & Maintenance",
+      "points": 2,
+      "status": "Done",
+      "summary": "As a user I can update my profile and change my password"
+    },
+    {
+      "key": "ORMS-13",
+      "epic": "ORMS-2",
+      "sprint": "Sprint 1 - Foundation",
+      "points": 5,
+      "status": "Done",
+      "summary": "As an admin I can add, edit and delete resources"
+    },
+    {
+      "key": "ORMS-14",
+      "epic": "ORMS-2",
+      "sprint": "Sprint 2 - Core workflows",
+      "points": 3,
+      "status": "Done",
+      "summary": "As a user I can search and filter the resource catalogue"
+    },
+    {
+      "key": "ORMS-15",
+      "epic": "ORMS-2",
+      "sprint": "Sprint 2 - Core workflows",
+      "points": 2,
+      "status": "Done",
+      "summary": "As an admin I can change a resource status (retire, maintenance)"
+    },
+    {
+      "key": "ORMS-16",
+      "epic": "ORMS-3",
+      "sprint": "Sprint 2 - Core workflows",
+      "points": 3,
+      "status": "Done",
+      "summary": "As an employee I can request an available asset"
+    },
+    {
+      "key": "ORMS-17",
+      "epic": "ORMS-3",
+      "sprint": "Sprint 2 - Core workflows",
+      "points": 5,
+      "status": "Done",
+      "summary": "As an admin I can approve or reject requests"
+    },
+    {
+      "key": "ORMS-18",
+      "epic": "ORMS-3",
+      "sprint": "Sprint 2 - Core workflows",
+      "points": 5,
+      "status": "Done",
+      "summary": "Prevent the same asset being allocated twice (atomic allocation)"
+    },
+    {
+      "key": "ORMS-19",
+      "epic": "ORMS-3",
+      "sprint": "Sprint 3 - UX & Maintenance",
+      "points": 5,
+      "status": "Done",
+      "summary": "Return workflow with condition inspection"
+    },
+    {
+      "key": "ORMS-20",
+      "epic": "ORMS-3",
+      "sprint": "Sprint 3 - UX & Maintenance",
+      "points": 2,
+      "status": "Done",
+      "summary": "As an admin I can allocate an asset directly to an employee"
+    },
+    {
+      "key": "ORMS-21",
+      "epic": "ORMS-4",
+      "sprint": "Sprint 2 - Core workflows",
+      "points": 5,
+      "status": "Done",
+      "summary": "As a user I can book a room or projector for a time slot"
+    },
+    {
+      "key": "ORMS-22",
+      "epic": "ORMS-4",
+      "sprint": "Sprint 2 - Core workflows",
+      "points": 5,
+      "status": "Done",
+      "summary": "Reject overlapping bookings with 409 Conflict"
+    },
+    {
+      "key": "ORMS-23",
+      "epic": "ORMS-4",
+      "sprint": "Sprint 3 - UX & Maintenance",
+      "points": 5,
+      "status": "Done",
+      "summary": "Day-view booking calendar"
+    },
+    {
+      "key": "ORMS-24",
+      "epic": "ORMS-4",
+      "sprint": "Sprint 3 - UX & Maintenance",
+      "points": 2,
+      "status": "Done",
+      "summary": "Cancel a booking (owner or admin)"
+    },
+    {
+      "key": "ORMS-25",
+      "epic": "ORMS-5",
+      "sprint": "Sprint 3 - UX & Maintenance",
+      "points": 3,
+      "status": "Done",
+      "summary": "As a user I can report a faulty resource"
+    },
+    {
+      "key": "ORMS-26",
+      "epic": "ORMS-5",
+      "sprint": "Sprint 3 - UX & Maintenance",
+      "points": 3,
+      "status": "Done",
+      "summary": "As an admin I can progress and resolve maintenance tickets"
+    },
+    {
+      "key": "ORMS-27",
+      "epic": "ORMS-5",
+      "sprint": "Sprint 3 - UX & Maintenance",
+      "points": 3,
+      "status": "Done",
+      "summary": "Audit log of every state-changing action"
+    },
+    {
+      "key": "ORMS-28",
+      "epic": "ORMS-5",
+      "sprint": "Sprint 3 - UX & Maintenance",
+      "points": 3,
+      "status": "Done",
+      "summary": "In-app notifications"
+    },
+    {
+      "key": "ORMS-29",
+      "epic": "ORMS-6",
+      "sprint": "Sprint 3 - UX & Maintenance",
+      "points": 5,
+      "status": "Done",
+      "summary": "Admin dashboard with KPIs and charts"
+    },
+    {
+      "key": "ORMS-30",
+      "epic": "ORMS-6",
+      "sprint": "Sprint 3 - UX & Maintenance",
+      "points": 3,
+      "status": "Done",
+      "summary": "Employee dashboard"
+    },
+    {
+      "key": "ORMS-31",
+      "epic": "ORMS-7",
+      "sprint": "Sprint 1 - Foundation",
+      "points": 3,
+      "status": "Done",
+      "summary": "Dockerize backend and frontend with multi-stage builds"
+    },
+    {
+      "key": "ORMS-32",
+      "epic": "ORMS-7",
+      "sprint": "Sprint 1 - Foundation",
+      "points": 3,
+      "status": "Done",
+      "summary": "Docker Compose stack for the whole system"
+    },
+    {
+      "key": "ORMS-33",
+      "epic": "ORMS-7",
+      "sprint": "Sprint 2 - Core workflows",
+      "points": 5,
+      "status": "Done",
+      "summary": "GitHub Actions CI pipeline"
+    },
+    {
+      "key": "ORMS-34",
+      "epic": "ORMS-7",
+      "sprint": "Sprint 4 - DevOps & Monitoring",
+      "points": 3,
+      "status": "Done",
+      "summary": "Full-stack smoke test in CI with docker compose"
+    },
+    {
+      "key": "ORMS-35",
+      "epic": "ORMS-7",
+      "sprint": "Sprint 4 - DevOps & Monitoring",
+      "points": 3,
+      "status": "Done",
+      "summary": "CD: publish versioned images to GitHub Container Registry"
+    },
+    {
+      "key": "ORMS-36",
+      "epic": "ORMS-7",
+      "sprint": "Sprint 4 - DevOps & Monitoring",
+      "points": 5,
+      "status": "Done",
+      "summary": "Instrument the API with Prometheus metrics"
+    },
+    {
+      "key": "ORMS-37",
+      "epic": "ORMS-7",
+      "sprint": "Sprint 4 - DevOps & Monitoring",
+      "points": 5,
+      "status": "Done",
+      "summary": "Provision Grafana dashboards as code"
+    },
+    {
+      "key": "ORMS-38",
+      "epic": "ORMS-7",
+      "sprint": "Sprint 4 - DevOps & Monitoring",
+      "points": 3,
+      "status": "In Progress",
+      "summary": "Prometheus alert rules"
+    },
+    {
+      "key": "ORMS-39",
+      "epic": "ORMS-7",
+      "sprint": "Sprint 4 - DevOps & Monitoring",
+      "points": 3,
+      "status": "To Do",
+      "summary": "Jira <-> GitHub integration"
+    }
+  ]
+}

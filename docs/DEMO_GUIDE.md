@@ -26,10 +26,14 @@ Open these tabs in this order:
 
 ## 1. Plan — Jira (1.5 min)
 
-- Show the **Backlog**: 7 epics, 32 stories with story points, 4 sprints (Sprint 1 Foundation → Sprint 4 DevOps & Observability).
-- Open a story (for example *"Reject overlapping bookings with 409 Conflict"*) and show its acceptance criteria.
-- Show the **comments added automatically by GitHub Actions** ("Commit abc1234 pushed…", "Pull request opened…", "Merged…"). The issue moved to *Done* by itself when the PR was merged.
-- Say: *"Branch names and commit messages carry the Jira key, e.g. `feature/ORMS-15-booking-overlap`. Our `jira.yml` workflow reads the key and calls the Jira REST API."*
+Board: https://aravpalod2.atlassian.net/jira/software/projects/ORMS/boards/3 (project **ResourceHub**, key **ORMS**)
+
+- **Backlog tab**: 7 epics (ORMS-1 to ORMS-7) and 32 stories (ORMS-8 to ORMS-39), each with story points and acceptance criteria. That's 118 points in total.
+- **Sprints**: Sprint 1 Foundation (27 pts), Sprint 2 Core workflows (33), Sprint 3 UX & Maintenance (36) are **completed**. **Sprint 4 DevOps & Monitoring (22) is active**.
+- **Board tab** (active Sprint 4): 4 stories Done, *ORMS-38 Prometheus alert rules* In Progress, *ORMS-39 Jira <-> GitHub integration* To Do.
+- **Reports**: Burndown chart, Velocity report, Sprint report.
+- Open **ORMS-22** *"Reject overlapping bookings with 409 Conflict"* to show acceptance criteria that map straight to code and tests.
+- **Live finish of ORMS-39**: push the branch `feature/ORMS-39-jira-github-integration` and open and merge a PR titled `ORMS-39 Jira GitHub integration`. GitHub Actions comments on the issue and moves it to **Done** while the examiner watches. The steps are also in the comment on ORMS-39.
 
 ## 2. Code & CI/CD — GitHub Actions (2 min)
 

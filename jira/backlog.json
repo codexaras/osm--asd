@@ -9,8 +9,8 @@
   "sprints": [
     { "name": "Sprint 1 - Foundation", "goal": "Repo, auth, RBAC, resource CRUD and containerised dev environment" },
     { "name": "Sprint 2 - Core workflows", "goal": "Requests, approvals, atomic allocation, conflict-free booking and CI pipeline" },
-    { "name": "Sprint 3 - Booking UX, maintenance & dashboards", "goal": "Calendar view, returns, maintenance tickets, notifications, audit log, dashboards" },
-    { "name": "Sprint 4 - DevOps & observability", "goal": "CD to GHCR, Prometheus metrics, Grafana dashboards, alerts and Jira automation" }
+    { "name": "Sprint 3 - UX & Maintenance", "goal": "Calendar view, returns, maintenance tickets, notifications, audit log, dashboards" },
+    { "name": "Sprint 4 - DevOps & Monitoring", "goal": "CD to GHCR, Prometheus metrics, Grafana dashboards, alerts and Jira automation" }
   ],
   "epics": [
     {

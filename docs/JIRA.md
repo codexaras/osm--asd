@@ -1,6 +1,8 @@
 # Jira — planning and GitHub integration
 
-There are four parts to the Jira setup. Do them in order.
+> **Already done for this team:** project **ResourceHub (ORMS)** on https://aravpalod2.atlassian.net holds the full backlog. It has 7 epics, 32 stories, story points, 4 sprints (3 closed and Sprint 4 active), and was created through the Atlassian MCP connector. The issue map is in `jira/created_issues.json`. You only need **part 3** (GitHub secrets). The other parts are for setting this up from scratch.
+
+There are four parts to the Jira setup.
 
 ## 1. Create the Jira project
 
@@ -38,7 +40,7 @@ In the GitHub repo, go to **Settings → Secrets and variables → Actions**:
 
 | Type | Name | Value |
 |---|---|---|
-| Secret | `JIRA_BASE_URL` | `https://<your-site>.atlassian.net` |
+| Secret | `JIRA_BASE_URL` | `https://aravpalod2.atlassian.net` |
 | Secret | `JIRA_USER_EMAIL` | your Atlassian e-mail |
 | Secret | `JIRA_API_TOKEN` | the API token |
 | Variable | `JIRA_PROJECT_KEY` | `ORMS` |

@@ -11,6 +11,8 @@ tests and ships it with **GitHub Actions**, runs it in **Docker**, and watches i
 
 ---
 
+> 👉 **New here? Read [`START_HERE.md`](START_HERE.md) first.** It covers running the app, pushing to GitHub, and the live Jira board at https://aravpalod2.atlassian.net (project ORMS).
+
 ## 1. Quick start (2 commands)
 
 Prerequisite: **Docker Desktop** (Windows/macOS) or Docker Engine + Compose v2 (Linux).
@@ -162,7 +164,8 @@ Details: [`docs/CI_CD.md`](docs/CI_CD.md).
 ## 6. Agile with Jira
 
 - Backlog as code: [`jira/backlog.json`](jira/backlog.json) — **7 epics, 32 user stories, 118 story points, 4 two-week sprints**, each story with acceptance criteria and owner role.
-- Create it in your Jira automatically: `python3 scripts/jira/create_backlog.py --sprints` (or import [`jira/backlog.csv`](jira/backlog.csv)).
+- **Live board:** https://aravpalod2.atlassian.net, project **ResourceHub (ORMS)**. Sprints 1–3 are completed and Sprint 4 is active. The issue map is in [`jira/created_issues.json`](jira/created_issues.json).
+- To recreate it on another site: `python3 scripts/jira/create_backlog.py --sprints`, or import [`jira/backlog.csv`](jira/backlog.csv).
 - Branch / commit / PR convention: `feature/ORMS-12-booking-overlap`, `ORMS-12 reject overlapping bookings` → the Jira workflow links everything.
 
 Setup guide (API token, GitHub secrets, GitHub-for-Jira app, Atlassian MCP): [`docs/JIRA.md`](docs/JIRA.md).
