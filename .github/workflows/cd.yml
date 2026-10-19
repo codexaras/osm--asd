@@ -41,7 +41,7 @@ jobs:
         run: echo "image=${REGISTRY}/$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')/resourcehub-${{ matrix.service }}" >> "$GITHUB_OUTPUT"
       - name: Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ steps.name.outputs.image }}
           tags: |
