@@ -41,7 +41,7 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Comment on referenced issues
         # Untrusted values are passed through env vars, never interpolated into the script (prevents injection)
         env:
@@ -56,7 +56,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Transition referenced issues
         env:
           PR_ACTION: ${{ github.event.action }}
@@ -75,7 +75,7 @@ jobs:
     if: github.event_name == 'workflow_run'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Comment CI result, create Bug on main failures
         env:
           CONCLUSION: ${{ github.event.workflow_run.conclusion }}
