@@ -1,11 +1,11 @@
 # ---------- Stage 1: install production dependencies ----------
-FROM node:22-alpine AS deps
+FROM node:26-alpine AS deps
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 # ---------- Stage 2: minimal runtime image ----------
-FROM node:22-alpine AS runtime
+FROM node:26-alpine AS runtime
 LABEL org.opencontainers.image.title="resourcehub-backend" \
       org.opencontainers.image.description="ResourceHub Office Resource Management API" \
       org.opencontainers.image.source="https://github.com/your-org/resourcehub"
