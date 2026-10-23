@@ -148,15 +148,17 @@ jobs:
 
       - name: Prometheus - targets up and metrics ingested
         run: |
+          # -G + --data-urlencode: PromQL braces/quotes must be URL-encoded (curl treats {} as a glob otherwise)
+          promq() { curl -fsS -G http://localhost:9090/api/v1/query --data-urlencode "query=$1"; }
           for i in $(seq 1 30); do
-            UP=$(curl -fsS 'http://localhost:9090/api/v1/query?query=up{job="resourcehub-api"}' | jq -r '.data.result[0].value[1]')
+            UP=$(promq 'up{job="resourcehub-api"}' | jq -r '.data.result[0].value[1]')
             [ "$UP" = "1" ] && break; sleep 2
           done
           test "$UP" = "1"
           curl -fsS http://localhost:9090/api/v1/targets | jq -r '.data.activeTargets[] | "\(.labels.job)\t\(.health)"'
-          REQS=$(curl -fsS 'http://localhost:9090/api/v1/query?query=sum(rh_http_requests_total)' | jq -r '.data.result[0].value[1]')
+          REQS=$(promq 'sum(rh_http_requests_total)' | jq -r '.data.result[0].value[1]')
           echo "rh_http_requests_total = $REQS"; test "${REQS%.*}" -gt 50
-          curl -fsS 'http://localhost:9090/api/v1/query?query=sum(rh_resources)' | jq -e '.data.result[0].value[1] | tonumber > 0'
+          promq 'sum(rh_resources)' | jq -e '.data.result[0].value[1] | tonumber > 0'
 
       - name: Grafana - datasource healthy and dashboards provisioned
         run: |
